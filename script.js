@@ -1,12 +1,15 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import gsap from 'gsap'
 import * as dat from 'lil-gui'
-import ball from './earth.jpg'
+import earth from './earth.jpg'
+import ice from './ice.jpg'
 
 const parameters = {
     color: 0xff0000,
-    texturePath: ball,
+    texturePath: earth,
     spin: () => {
         gsap.to(mesh.rotation, { duration: 1, y: mesh.rotation.y + Math.PI *2 })
     }
@@ -25,8 +28,10 @@ const scene = new THREE.Scene()
 const gui = new dat.GUI()
 
 // Texture loader
-const textureLoader = new THREE.TextureLoader()
-const texture = textureLoader.load(parameters.texturePath)
+const texture_loader = new THREE.TextureLoader()
+const texture = texture_loader.load(parameters.texturePath)
+const text_texture = texture_loader.load(ice)
+const text_material = new THREE.MeshBasicMaterial({ map: text_texture })
 
 /**
  * Object
@@ -49,6 +54,26 @@ gui.addColor(parameters, 'color')
     })
 gui.add(parameters, 'spin')
 scene.add(mesh)
+
+// Text
+let text_mesh
+const font_loader = new FontLoader()
+font_loader.load('./helvetiker_regular.typeface.json', (font) => {
+    const text_geometry = new TextGeometry('Hello, World!', {
+        font: font,
+        size: 0.25,
+        height: 0.05,
+        curveSegments: 12,
+        bevelEnabled: false
+    })
+    text_mesh = new THREE.Mesh(text_geometry, text_material)
+    text_geometry.center()
+
+    text_mesh.position.set(0, 0, 1)
+    text_mesh.rotation.set(0, 0, 0)
+    text_mesh.lookAt(new THREE.Vector3(0, 0, 3))
+    scene.add(text_mesh)
+})
 
 /**
  * Sizes
@@ -89,6 +114,14 @@ const tick = () => {
 
     // Update controls
     controls.update()
+
+    // Rotate the sphere
+    mesh.rotation.y = elapsedTime * 0.5
+
+    if (text_mesh) {
+        text_mesh.position.set(0, 0, 1.5)
+        text_mesh.rotation.set(0, 0, 0)
+    }
 
     // Render
     renderer.render(scene, camera)
