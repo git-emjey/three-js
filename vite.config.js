@@ -1,17 +1,14 @@
 const isCodeSandbox = 'SANDBOX_URL' in process.env || 'CODESANDBOX_HOST' in process.env
 
 export default {
-    root: 'src/',
-    publicDir: '../static/',
-    base: './',
-    server:
-    {
+    root: '.',
+    base: '/three-js/',
+    server: {
         host: true,
-        open: !isCodeSandbox // Open if it's not a CodeSandbox
+        open: !isCodeSandbox
     },
-    build:
-    {
-        outDir: '../dist',
+    build: {
+        outDir: 'dist',
         emptyOutDir: true,
         sourcemap: true
     }
